@@ -1,0 +1,13 @@
+{
+  "appId": "com.vlad.insta",
+  "appName": "Insta",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {}
+}
