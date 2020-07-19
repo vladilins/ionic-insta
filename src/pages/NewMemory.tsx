@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from 'react';
 import {
   IonPage,
   IonHeader,
@@ -13,51 +13,89 @@ import {
   IonItem,
   IonLabel,
   IonInput,
-  IonIcon,
   IonButton,
+  IonIcon,
   IonSelect,
-  IonSelectOption,
-} from "@ionic/react";
-import { camera } from "ionicons/icons";
+  IonSelectOption
+} from '@ionic/react';
+import { camera } from 'ionicons/icons';
 import {
   Plugins,
   CameraResultType,
   CameraSource,
   FilesystemDirectory,
-} from "@capacitor/core";
-import { base64FromPath } from "@ionic/react-hooks/filesystem";
-import "./NewMemory.css";
+  Capacitor
+} from '@capacitor/core';
+import { base64FromPath } from '@ionic/react-hooks/filesystem';
+import { useHistory } from 'react-router-dom';
+
+import MemoriesContext from '../data/memories-context';
+import './NewMemory.css';
 
 const { Camera, Filesystem } = Plugins;
 
 const NewMemory: React.FC = () => {
   const [takenPhoto, setTakenPhoto] = useState<{
-    path: string;
+    path: string | undefined;
     preview: string;
   }>();
-
-  const [chosenMemoryType, setChosenMemoryType] = useState<"good" | "bad">(
-    "good"
+  const [chosenMemoryType, setChosenMemoryType] = useState<'good' | 'bad'>(
+    'good'
   );
 
+  const memoriesCtx = useContext(MemoriesContext);
+
   const titleRef = useRef<HTMLIonInputElement>(null);
+  const filePickerRef = useRef<HTMLInputElement>(null);
+
+  const history = useHistory();
+
+  const selectMemoryTypeHandler = (event: CustomEvent) => {
+    const selectedMemoryType = event.detail.value;
+    setChosenMemoryType(selectedMemoryType);
+  };
+
+  const openFilePicker = () => {
+    filePickerRef.current!.click();
+  };
+
+  const pickFileHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target!.files![0];
+    const fr = new FileReader();
+    fr.onload = () => {
+      setTakenPhoto({
+        path: undefined,
+        preview: fr.result!.toString()
+      });
+    };
+    fr.readAsDataURL(file);
+    
+  };
 
   const takePhotoHandler = async () => {
-    const photo = await Camera.getPhoto({
-      resultType: CameraResultType.Uri,
-      source: CameraSource.Camera,
-      quality: 80,
-      width: 500,
-    });
-
-    if (!photo || !photo.path || !photo.webPath) {
+    if (!Capacitor.isPluginAvailable('Camera')) {
+      openFilePicker();
       return;
     }
+    try {
+      const photo = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 80,
+        width: 500
+      });
 
-    setTakenPhoto({
-      path: photo.path,
-      preview: photo.webPath,
-    });
+      if (!photo || !photo.webPath) {
+        return;
+      }
+
+      setTakenPhoto({
+        path: photo.path,
+        preview: photo.webPath
+      });
+    } catch (error) {
+      openFilePicker();
+    }
   };
 
   const addMemoryHandler = async () => {
@@ -72,19 +110,24 @@ const NewMemory: React.FC = () => {
       return;
     }
 
-    const fileName = new Date().getTime() + ".jpeg";
+    const fileName = new Date().getTime() + '.jpeg';
 
     const base64 = await base64FromPath(takenPhoto!.preview);
     Filesystem.writeFile({
       path: fileName,
       data: base64,
-      directory: FilesystemDirectory.Data,
+      directory: FilesystemDirectory.Data
     });
+
+    memoriesCtx.addMemory(
+      fileName,
+      base64,
+      enteredTitle.toString(),
+      chosenMemoryType
+    );
+    history.length > 0 ? history.goBack() : history.replace('/good-memories');
   };
 
-  const selectMemoryTypeHandler = (event: CustomEvent) => {
-    const selectedMemoryType = event.detail.value;
-  };
   return (
     <IonPage>
       <IonHeader>
@@ -120,14 +163,18 @@ const NewMemory: React.FC = () => {
             <IonCol>
               <div className="image-preview">
                 {!takenPhoto && <h3>No photo chosen.</h3>}
-                {takenPhoto && (
-                  <img src={takenPhoto.preview} alt="preview"></img>
-                )}
+                {takenPhoto && <img src={takenPhoto.preview} alt="Preview" />}
               </div>
               <IonButton fill="clear" onClick={takePhotoHandler}>
                 <IonIcon icon={camera} slot="start"></IonIcon>
                 <IonLabel>Take Photo</IonLabel>
               </IonButton>
+              <input
+                type="file"
+                hidden
+                ref={filePickerRef}
+                onChange={pickFileHandler}
+              />
             </IonCol>
           </IonRow>
           <IonRow className="ion-margin-top">
