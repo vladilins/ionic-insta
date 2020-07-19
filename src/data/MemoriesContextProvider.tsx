@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plugins, FilesystemDirectory } from '@capacitor/core';
+import { base64FromPath } from '@ionic/react-hooks/filesystem';
 
-import MemoriesContext, { Memory } from './memories-context';
+import MemoriesContext, { Memory, MemoryType } from './memories-context';
+import { Photo } from '../components/ImagePicker';
 
 const { Storage, Filesystem } = Plugins;
 
@@ -20,18 +22,22 @@ const MemoriesContextProvider: React.FC = props => {
     Storage.set({ key: 'memories', value: JSON.stringify(storableMemories) });
   }, [memories]);
 
-  const addMemory = (
-    path: string,
-    base64Data: string,
-    title: string,
-    type: 'good' | 'bad'
-  ) => {
+  const addMemory = async (photo: Photo, title: string, type: MemoryType) => {
+    const fileName = new Date().getTime() + '.jpeg';
+
+    const base64 = await base64FromPath(photo.preview);
+    Filesystem.writeFile({
+      path: fileName,
+      data: base64,
+      directory: FilesystemDirectory.Data
+    });
+
     const newMemory: Memory = {
       id: Math.random().toString(),
       title,
       type,
-      imagePath: path,
-      base64Url: base64Data
+      imagePath: fileName,
+      base64Url: base64
     };
     setMemories(curMemories => {
       return [...curMemories, newMemory];
