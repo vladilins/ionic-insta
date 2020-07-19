@@ -5,6 +5,8 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
+  IonButtons,
+  IonBackButton,
 } from "@ionic/react";
 
 const NewMemory: React.FC = () => {
@@ -12,6 +14,9 @@ const NewMemory: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/good-memories"></IonBackButton>
+          </IonButtons>
           <IonTitle>New Memories</IonTitle>
         </IonToolbar>
       </IonHeader>
