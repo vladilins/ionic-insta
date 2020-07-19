@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   IonPage,
   IonHeader,
@@ -15,6 +15,8 @@ import {
   IonInput,
   IonIcon,
   IonButton,
+  IonSelect,
+  IonSelectOption,
 } from "@ionic/react";
 import { camera } from "ionicons/icons";
 import {
@@ -33,6 +35,12 @@ const NewMemory: React.FC = () => {
     path: string;
     preview: string;
   }>();
+
+  const [chosenMemoryType, setChosenMemoryType] = useState<"good" | "bad">(
+    "good"
+  );
+
+  const titleRef = useRef<HTMLIonInputElement>(null);
 
   const takePhotoHandler = async () => {
     const photo = await Camera.getPhoto({
@@ -53,6 +61,17 @@ const NewMemory: React.FC = () => {
   };
 
   const addMemoryHandler = async () => {
+    const enteredTitle = titleRef.current?.value;
+
+    if (
+      !enteredTitle ||
+      enteredTitle.toString().trim().length === 0 ||
+      !takenPhoto ||
+      !chosenMemoryType
+    ) {
+      return;
+    }
+
     const fileName = new Date().getTime() + ".jpeg";
 
     const base64 = await base64FromPath(takenPhoto!.preview);
@@ -63,6 +82,9 @@ const NewMemory: React.FC = () => {
     });
   };
 
+  const selectMemoryTypeHandler = (event: CustomEvent) => {
+    const selectedMemoryType = event.detail.value;
+  };
   return (
     <IonPage>
       <IonHeader>
@@ -79,8 +101,19 @@ const NewMemory: React.FC = () => {
             <IonCol>
               <IonItem>
                 <IonLabel position="floating">Memory Title</IonLabel>
-                <IonInput type="text"></IonInput>
+                <IonInput type="text" ref={titleRef}></IonInput>
               </IonItem>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol>
+              <IonSelect
+                onIonChange={selectMemoryTypeHandler}
+                value={chosenMemoryType}
+              >
+                <IonSelectOption value="good">Good Memory</IonSelectOption>
+                <IonSelectOption value="bad">Bad Memory</IonSelectOption>
+              </IonSelect>
             </IonCol>
           </IonRow>
           <IonRow className="ion-text-center">
