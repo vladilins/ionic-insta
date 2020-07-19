@@ -17,10 +17,16 @@ import {
   IonButton,
 } from "@ionic/react";
 import { camera } from "ionicons/icons";
-import { Plugins, CameraResultType, CameraSource } from "@capacitor/core";
+import {
+  Plugins,
+  CameraResultType,
+  CameraSource,
+  FilesystemDirectory,
+} from "@capacitor/core";
+import { base64FromPath } from "@ionic/react-hooks/filesystem";
 import "./NewMemory.css";
 
-const { Camera } = Plugins;
+const { Camera, Filesystem } = Plugins;
 
 const NewMemory: React.FC = () => {
   const [takenPhoto, setTakenPhoto] = useState<{
@@ -44,7 +50,17 @@ const NewMemory: React.FC = () => {
       path: photo.path,
       preview: photo.webPath,
     });
-    console.log(photo);
+  };
+
+  const addMemoryHandler = async () => {
+    const fileName = new Date().getTime() + ".jpeg";
+
+    const base64 = await base64FromPath(takenPhoto!.preview);
+    Filesystem.writeFile({
+      path: fileName,
+      data: base64,
+      directory: FilesystemDirectory.Data,
+    });
   };
 
   return (
@@ -83,7 +99,7 @@ const NewMemory: React.FC = () => {
           </IonRow>
           <IonRow className="ion-margin-top">
             <IonCol className="ion-text-center">
-              <IonButton>Add Memory</IonButton>
+              <IonButton onClick={addMemoryHandler}>Add Memory</IonButton>
             </IonCol>
           </IonRow>
         </IonGrid>
