@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   IonPage,
   IonHeader,
@@ -6,8 +6,8 @@ import {
   IonTitle,
   IonContent,
   IonButtons,
-  IonBackButton,
-} from "@ionic/react";
+  IonBackButton
+} from '@ionic/react';
 
 const NewMemory: React.FC = () => {
   return (
@@ -15,13 +15,13 @@ const NewMemory: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/good-memories"></IonBackButton>
+            <IonBackButton defaultHref="/good-memories" />
           </IonButtons>
-          <IonTitle>New Memories</IonTitle>
+          <IonTitle>Add New Memory</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <h2>New Memories</h2>
+        <h2>New Memory</h2>
       </IonContent>
     </IonPage>
   );

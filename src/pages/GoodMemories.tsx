@@ -1,18 +1,18 @@
-import React from "react";
+import React from 'react';
 import {
   IonPage,
   IonHeader,
   IonToolbar,
   IonTitle,
   IonContent,
-  IonButton,
   IonButtons,
+  IonButton,
   IonIcon,
   isPlatform,
   IonFab,
-  IonFabButton,
-} from "@ionic/react";
-import { add } from "ionicons/icons";
+  IonFabButton
+} from '@ionic/react';
+import { add } from 'ionicons/icons';
 
 const GoodMemories: React.FC = () => {
   return (
@@ -20,10 +20,10 @@ const GoodMemories: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Good Memories</IonTitle>
-          {isPlatform("ios") && (
+          {isPlatform('ios') && (
             <IonButtons slot="end">
               <IonButton routerLink="/new-memory">
-                <IonIcon slot="icon-only" icon={add}></IonIcon>
+                <IonIcon slot="icon-only" icon={add} />
               </IonButton>
             </IonButtons>
           )}
@@ -31,10 +31,10 @@ const GoodMemories: React.FC = () => {
       </IonHeader>
       <IonContent>
         <h2>Good Memories</h2>
-        {!isPlatform("ios") && (
+        {!isPlatform('ios') && (
           <IonFab vertical="bottom" horizontal="end">
             <IonFabButton routerLink="/new-memory">
-              <IonIcon icon={add}></IonIcon>
+              <IonIcon icon={add} />
             </IonFabButton>
           </IonFab>
         )}
